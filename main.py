@@ -9,11 +9,12 @@ auth_token = esri_auth()
 cbsa_list = ["31080"]
 for cbsacode in cbsa_list:
 
-    geo_features = esri_standard_geography_api(geoid=cbsacode, auth_token=auth_token, geo_level=GeoLevels.ZIPCODE)
-
+    # get lat/lon values for zipcode polygons
+    geo_features = esri_standard_geography_api(geoid=cbsacode, auth_token=auth_token)
 
     zipcode_list = []
 
+    # get lat/lon values for zipcode polygons
     for geo_dict in geo_features:
         zipcode_test = geo_dict['attributes']['AreaID']
         if zipcode_test != "92683":
@@ -22,7 +23,6 @@ for cbsacode in cbsa_list:
         geometry = []
         if len(geo_dict['geometry']['rings']) > 1 and (zipcode_test == "92683"):
             parentPolygon = ""
-            diff_poly = ""
             subPolygonList = []
             for i, lat_lng_array in enumerate(geo_dict['geometry']['rings']):
                 if parentPolygon == "":
@@ -36,27 +36,13 @@ for cbsacode in cbsa_list:
                 else:
                     subPolygonList.append(parentPolygon)
 
-
-            # difference_poly = parentPolygon.difference(MultiPolygon(subPolygonList))
-            # poly_mapped = mapping(difference_poly)
-            # geo_list = []
-            # for i, polyTupleList in enumerate(poly_mapped['coordinates']):
-            #     for polytuple in polyTupleList:
-            #         geo_list.append(polytuple)
-            # geometry.append(geo_list)
-
-        ### ADD AFTER TESTING
-        # else:
-        #     geometry = geo_dict['geometry']['rings']
-
-
-
-            poly_mapped = mapping(diff_poly[0])
+            difference_poly = parentPolygon.difference(MultiPolygon(subPolygonList))
+            poly_mapped = mapping(difference_poly)
 
             geo_list = []
-            for i, polyTupleList in enumerate(poly_mapped['coordinates']):
-                for polytuple in polyTupleList:
-                    geo_list.append(polytuple)
+            for i, poly_tuple_list in enumerate(poly_mapped['coordinates']):
+                for poly_tuple in poly_tuple_list:
+                    geo_list.append(poly_tuple)
             geometry.append(geo_list)
 
         zipcode_list.append(
@@ -67,10 +53,13 @@ for cbsacode in cbsa_list:
             }
         )
 
-    cbsa_ziplist = {
-        "cbsacode": cbsacode,
-        "zipcodes": zipcode_list
-    }
+
+
+
+    # cbsa_ziplist = {
+    #     "cbsacode": cbsacode,
+    #     "zipcodes": zipcode_list
+    # }
 
     db.insert_list_mongo(list_data=[cbsa_ziplist],
                                   dbname='Geographies',

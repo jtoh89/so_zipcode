@@ -1,23 +1,17 @@
-
+import os
 from dotenv import load_dotenv
 import requests as r
 
-def esri_standard_geography_api(geoid, auth_token, geo_level):
-    geolayer = ""
-    subgeolayer = ""
-    if geo_level == "zipcode":
-        geolayer = "US.CBSA"
-        subgeolayer = "US.ZIP5"
-
+def esri_standard_geography_api(geoid, auth_token):
     url = "https://geoenrich.arcgis.com/arcgis/rest/services/World/geoenrichmentserver/StandardGeographyQuery/execute"
 
     params = {
         "sourceCountry": "US",
-        "geographylayers": [geolayer],
+        "geographylayers": ["US.CBSA"],
         "geographyids": [geoid],
         "returnGeometry": True,
         "returnSubGeographyLayer": True,
-        "subGeographyLayer": subgeolayer,
+        "subGeographyLayer": "US.ZIP5",
         "generalizationLevel": 0,
         "f": "pjson",
         "token": auth_token,
