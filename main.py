@@ -31,24 +31,27 @@ for cbsacode in cbsa_list:
 
                 subPolygon = Polygon(lat_lng_array)
 
-                if (parentPolygon.intersects(subPolygon) is True):
-                    subPolygonList.append(subPolygon)
-                else:
-                    subPolygonList.append(parentPolygon)
+                subPolygonList.append(subPolygon)
+                # if (parentPolygon.intersects(subPolygon) is True):
+                #     subPolygonList.append(subPolygon)
+                # else:
+                #     subPolygonList.append(parentPolygon)
 
-            difference_poly = parentPolygon.difference(MultiPolygon(subPolygonList))
-            poly_mapped = mapping(difference_poly)
+            # difference_poly = parentPolygon.difference(MultiPolygon(subPolygonList))
+            # poly_mapped = mapping(difference_poly)
 
             geo_list = []
             for i, poly_tuple_list in enumerate(poly_mapped['coordinates']):
                 for poly_tuple in poly_tuple_list:
-                    geo_list.append(poly_tuple)
+                    geo_list.append({
+                        "lng": poly_tuple[0],
+                        "lat": poly_tuple[1],
+                    })
             geometry.append(geo_list)
 
         zipcode_list.append(
             {
                 "zipcode":geo_dict['attributes']['AreaID'],
-                # "geometry": geo_dict['geometry']['rings']
                 "geometry": geometry
             }
         )
@@ -56,14 +59,14 @@ for cbsacode in cbsa_list:
 
 
 
-    # cbsa_ziplist = {
-    #     "cbsacode": cbsacode,
-    #     "zipcodes": zipcode_list
-    # }
+    cbsa_ziplist = {
+        "cbsacode": cbsacode,
+        "zipcodes": zipcode_list
+    }
 
     db.insert_list_mongo(list_data=[cbsa_ziplist],
-                                  dbname='Geographies',
-                                  collection_name='EsriZipcodes',
+                                  dbname='ScopeOutMaps',
+                                  collection_name='MarketMapsTest',
                                   collection_update_existing={"cbsacode": cbsacode})
 
 

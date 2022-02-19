@@ -2,10 +2,6 @@ import sys
 from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
-from pandas import DataFrame
-import pandas as pd
-import json
-from bson import json_util
 
 def insert_list_mongo(list_data, dbname, collection_name, collection_update_existing=False):
     client = connect_to_client()
